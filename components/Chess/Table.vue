@@ -50,7 +50,7 @@ function backgroundColorHandler(
 .flamed {
   background-position: center;
   background-size: cover;
-  background-image: url('/flameCircle.png');
+  background-image: url('/flameCircle-300micro.png');
 }
 .unselectable {
   -webkit-touch-callout: none; /* iOS Safari */

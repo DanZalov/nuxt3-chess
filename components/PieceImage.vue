@@ -369,7 +369,7 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
     <img
       v-else-if="position.move.possibleMoves.includes(column + row)"
       class="w-100 pa-2 pointer"
-      src="/greyCircleLine.png"
+      src="/greyCircleLine-300micro.png"
       alt="circle"
       @click.stop="finalMoveHandler()"
     />
