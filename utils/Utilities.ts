@@ -16,3 +16,94 @@ export function convertLetterToPiece(letter: string) {
       return
   }
 }
+
+export function initialPosition() {
+  return {
+    table: {
+      bk: ['e8'],
+      wk: ['e1'],
+      bq: ['d8'],
+      wq: ['d1'],
+      br: ['a8', 'h8'],
+      wr: ['a1', 'h1'],
+      bb: ['c8', 'f8'],
+      wb: ['c1', 'f1'],
+      bn: ['b8', 'g8'],
+      wn: ['b1', 'g1'],
+      bp: ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
+      wp: ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
+    },
+    pinned: [],
+    whiteMove: true,
+    check: [],
+    move: {
+      piecePosition: '',
+      pieceCode: '',
+      possibleMoves: [],
+      possibleCaptures: [],
+    },
+    history: [],
+    pawnJumped: false,
+    tableHistory: [],
+    pawnPromotion: false,
+  } as PositionState
+}
+
+// export function initialPosition() {
+//   return {
+//     table: {
+//       bk: ['g8'],
+//       wk: ['h6'],
+//       bq: ['d8'],
+//       wq: ['c3'],
+//       br: ['a8', 'h3'],
+//       wr: ['a1', 'g5'],
+//       bb: ['c6', 'f4'],
+//       wb: ['c1', 'f5'],
+//       bn: ['b8', 'h4'],
+//       wn: ['b1', 'g1'],
+//       bp: ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'e6', 'h7'],
+//       wp: ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
+//     },
+//     pinned: [],
+//     whiteMove: false,
+//     check: [],
+//     move: {
+//       piecePosition: '',
+//       pieceCode: '',
+//       possibleMoves: [],
+//       possibleCaptures: [],
+//     },
+//     history: [
+//       ['e3', 'e6'],
+//       ['e4', 'e5'],
+//       ['d3', 'd6'],
+//       ['d4', 'd5'],
+//       ['c3', 'c6'],
+//       ['c4', 'c5'],
+//       ['b3', 'b6'],
+//       ['b4', 'b5'],
+//       ['a3', 'a6'],
+//       ['a4', 'a5'],
+//       ['f3', 'f6'],
+//       ['f4', 'f5'],
+//       ['g3', 'g6'],
+//       ['g4', 'g5'],
+//       ['h3', 'h6'],
+//       ['h4', 'h5'],
+//       ['Ra2', 'Ra7'],
+//       ['Ra3', 'Ra6'],
+//       ['Rh2', 'Rh7'],
+//       ['Rhh3', 'Rhh6'],
+//       ['e3', 'e6'],
+//       ['e4', 'e5'],
+//       ['e3', 'e6'],
+//       ['e4', 'e5'],
+//       ['e3', 'e6'],
+//       ['e4', 'e5'],
+//     ],
+//     pawnJumped: false,
+//     tableHistory: [],
+//     pawnPromotion: false,
+//   } as PositionState
+// }

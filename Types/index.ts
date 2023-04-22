@@ -57,4 +57,8 @@ declare global {
     queenside: boolean
     kingside: boolean
   }
+  interface GameOptions {
+    game: boolean
+    white: boolean
+  }
 }

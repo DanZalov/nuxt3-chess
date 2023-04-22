@@ -1,92 +1,7 @@
 <script setup lang="ts">
 import { Piece } from './utils/ShowPossibleMoves'
-
-const initialPosition: PositionState = {
-  table: {
-    bk: ['e8'],
-    wk: ['e1'],
-    bq: ['d8'],
-    wq: ['d1'],
-    br: ['a8', 'h8'],
-    wr: ['a1', 'h1'],
-    bb: ['c8', 'f8'],
-    wb: ['c1', 'f1'],
-    bn: ['b8', 'g8'],
-    wn: ['b1', 'g1'],
-    bp: ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
-    wp: ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
-  },
-  pinned: [],
-  whiteMove: true,
-  check: [],
-  move: {
-    piecePosition: '',
-    pieceCode: '',
-    possibleMoves: [],
-    possibleCaptures: [],
-  },
-  history: [],
-  pawnJumped: false,
-  tableHistory: [],
-  pawnPromotion: false,
-}
-// const initialPosition: PositionState = {
-//   table: {
-//     bk: ['g8'],
-//     wk: ['h6'],
-//     bq: ['d8'],
-//     wq: ['c3'],
-//     br: ['a8', 'h3'],
-//     wr: ['a1', 'g5'],
-//     bb: ['c6', 'f4'],
-//     wb: ['c1', 'f5'],
-//     bn: ['b8', 'h4'],
-//     wn: ['b1', 'g1'],
-//     bp: ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'e6', 'h7'],
-//     wp: ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
-//   },
-//   pinned: [],
-//   whiteMove: false,
-//   check: [],
-//   move: {
-//     piecePosition: '',
-//     pieceCode: '',
-//     possibleMoves: [],
-//     possibleCaptures: [],
-//   },
-//   history: [
-//     ['e3', 'e6'],
-//     ['e4', 'e5'],
-//     ['d3', 'd6'],
-//     ['d4', 'd5'],
-//     ['c3', 'c6'],
-//     ['c4', 'c5'],
-//     ['b3', 'b6'],
-//     ['b4', 'b5'],
-//     ['a3', 'a6'],
-//     ['a4', 'a5'],
-//     ['f3', 'f6'],
-//     ['f4', 'f5'],
-//     ['g3', 'g6'],
-//     ['g4', 'g5'],
-//     ['h3', 'h6'],
-//     ['h4', 'h5'],
-//     ['Ra2', 'Ra7'],
-//     ['Ra3', 'Ra6'],
-//     ['Rh2', 'Rh7'],
-//     ['Rhh3', 'Rhh6'],
-//     ['e3', 'e6'],
-//     ['e4', 'e5'],
-//     ['e3', 'e6'],
-//     ['e4', 'e5'],
-//     ['e3', 'e6'],
-//     ['e4', 'e5'],
-//   ],
-//   pawnJumped: false,
-//   tableHistory: [],
-//   pawnPromotion: false,
-// }
-const position = reactive(initialPosition)
+const game = reactive({ game: false, white: true } as GameOptions)
+const position = reactive(initialPosition())
 savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
@@ -101,29 +16,34 @@ onMounted(() => {
     console.log('Client heared from server: ', message)
   })
 
+  socket.on('game', (white: boolean) => {
+    // console.log('Client heared from server: ', message)
+    // const white = message === 'true' ? true : false
+    game.game = true
+    game.white = white
+    console.log('Client heared from server: ', white)
+  })
+
   // socket.on('disconnect', () => {
   // })
 })
 
+watch(game, () => {
+  const initial = initialPosition()
+  Object.assign(position, initial)
+  savePositionToHistory(position)
+})
+
 watch(position.table, () => {
-  // const history = position.history
-  // const lastMove = history[history.length - 1]
-  // socket.emit('move', lastMove[lastMove.length - 1])
   savePositionToHistory(position)
   position.pinned = searchForPinned(position)
   position.check = checkCheck(position)
   mateChecks(position)
   drawChecks(position)
-  // const objDiv = document.getElementById('movesHistoryTable') as HTMLElement
-  // if (objDiv) {
-  //   objDiv.scrollTop = objDiv.scrollHeight
-  //   console.log('scrolltry')
-  // }
   // console.log('watch')
 })
 
 function serverMoveDecoder(position: PositionState, move: string) {
-  console.log('move:', move)
   position.pawnJumped = false
 
   if (move.includes('O')) {
@@ -164,7 +84,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
       pieceDestination =
         move[move.length - 1] === '+' ? move.slice(-3, -1) : move.slice(-2)
     }
-    console.log('pieceDestination:', pieceDestination)
     const columnsArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
     const firstLetter = move[0]
     let pieceCode = position.whiteMove ? 'w' : 'b'
@@ -173,9 +92,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
     } else {
       pieceCode += firstLetter.toLowerCase()
     }
-    console.log('pieceCode:', pieceCode)
     const isCapture = move.includes('x') ? true : false
-    console.log('isCapture:', isCapture)
     const moveFirstPart = isCapture
       ? move.split('x')[0]
       : move.split(pieceDestination)[0]
@@ -185,7 +102,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
         piecePositionInfo = moveFirstPart[moveFirstPart.length - 1]
       }
     }
-    console.log('piecePositionInfo:', piecePositionInfo)
 
     let enPassant = isCapture ? true : false
     for (const [key, value] of Object.entries(position.table)) {
@@ -208,11 +124,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
             if (loopPiecePosition[1] === requiredRow) {
               const index = value.indexOf(loopPiecePosition)
               value.splice(index, 1)
-              console.log(
-                key +
-                  "'s got promoted to " +
-                  convertLetterToPiece(pawnPromotionCode[1])
-              )
               break
             }
           } else if (
@@ -227,7 +138,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
             ) {
               const index = value.indexOf(loopPiecePosition)
               value[index] = pieceDestination
-              console.log(key + "'s new position is " + pieceDestination)
               if (
                 key[1] === 'p' &&
                 Math.abs(+loopPiecePosition[1] - +pieceDestination[1]) === 2
@@ -240,7 +150,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
         }
       }
       if (isCapture && value.includes(pieceDestination) && key !== pieceCode) {
-        console.log(key + ' is been captured on ' + pieceDestination)
         const index = value.indexOf(pieceDestination)
         value.splice(index, 1)
         enPassant = false
@@ -277,7 +186,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
 
 <template>
   <v-container class="d-flex flex-row justify-center">
-    <ChessTable :position="position" />
+    <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
     <!-- <DragTemplate /> -->
   </v-container>

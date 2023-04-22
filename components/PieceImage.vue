@@ -4,6 +4,7 @@ const props = defineProps<{
   position: PositionState
   row: string
   column: string
+  game: GameOptions
 }>()
 const socket = useSocket()
 const pieceCode = computed(() => getPieceCode())
@@ -44,7 +45,7 @@ function showMoves(isWhite: boolean, piece: Piece) {
       //don't fill if empty
       fillMove(props.position, props.row, props.column, moves, piece)
     }
-    console.log(props.position)
+    // console.log(props.position)
   }
 }
 
@@ -213,10 +214,6 @@ function enPassant() {
   }
 }
 
-function Message(event: MouseEvent) {
-  console.log(event.target)
-}
-
 function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
   showMoves(isWhite, piece)
   const pieceImg = event.target as HTMLElement
@@ -249,7 +246,10 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
       event.pageX,
       event.pageY
     ) as HTMLElement
-    if (element) {
+    if (
+      element &&
+      (!props.game.game || props.game.white === props.position.whiteMove)
+    ) {
       element.click()
       if (
         !props.position.pawnPromotion &&
@@ -316,7 +316,6 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
       @click.stop="clickHandler(true, Piece.pawn)"
       @mousedown="onMouseDown($event, true, Piece.pawn)"
       @dragstart.prevent=""
-      @dragend="Message($event)"
     />
     <img
       v-else-if="pieceCode === 'bk'"

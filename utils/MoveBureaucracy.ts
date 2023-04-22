@@ -52,7 +52,7 @@ export function changeTable(
   const move = writeHistory(position, row, column, isCapture)
   clearMove(position)
   position.whiteMove = !position.whiteMove
-  console.log(position)
+  // console.log(position)
   return move
 }
 
