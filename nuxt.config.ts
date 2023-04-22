@@ -10,4 +10,14 @@ export default defineNuxtConfig({
   build: {
     transpile: ['vuetify'],
   },
+  hooks: {
+    'pages:extend'(pages) {
+      // add a route
+      pages.push({
+        name: 'home',
+        path: '/',
+        file: '~/pages/Home.vue',
+      })
+    },
+  },
 })

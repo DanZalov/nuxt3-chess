@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Piece } from './utils/ShowPossibleMoves'
+import { Piece } from '../utils/ShowPossibleMoves'
 const game = reactive({ game: false, white: true } as GameOptions)
 const position = reactive(initialPosition())
 savePositionToHistory(position)
