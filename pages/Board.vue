@@ -5,9 +5,11 @@ const position = reactive(initialPosition())
 savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
+// const loading = ref(false)
 
 const socket = useSocket()
 onMounted(() => {
+  socket.emit('board')
   // socket.on('connect', () => {
   // })
 
@@ -17,8 +19,6 @@ onMounted(() => {
   })
 
   socket.on('game', (white: boolean) => {
-    // console.log('Client heared from server: ', message)
-    // const white = message === 'true' ? true : false
     game.game = true
     game.white = white
     console.log('Client heared from server: ', white)
@@ -189,5 +189,6 @@ function serverMoveDecoder(position: PositionState, move: string) {
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
     <!-- <DragTemplate /> -->
+    <!-- <Loader :loading="loading" /> -->
   </v-container>
 </template>

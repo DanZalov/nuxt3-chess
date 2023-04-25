@@ -17,6 +17,6 @@
 
 <style>
 body {
-  background-color: #f5deb3;
+  background-color: #ffe0b2;
 }
 </style>

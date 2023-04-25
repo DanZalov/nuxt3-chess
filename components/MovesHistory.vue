@@ -2,14 +2,6 @@
 const props = defineProps<{
   position: PositionState
 }>()
-// watch(props.position.history, () => {
-//   const objDiv = document.getElementById('movesHistoryTable') as HTMLElement
-//   console.log('everytime')
-//   setTimeout(() => {
-//     objDiv?.scrollIntoView(false)
-//   }, 0)
-// })
-// const movesHistoryTable = ref<HTMLElement | null>(null)
 onMounted(() => {
   const myElement = document.querySelector('#movesHistoryTable') as HTMLElement
   myElement.scrollTop = myElement.scrollHeight
