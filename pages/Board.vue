@@ -13,9 +13,18 @@ onMounted(() => {
   // socket.on('connect', () => {
   // })
 
-  socket.on('move', (message: string) => {
-    serverMoveDecoder(position, message)
-    console.log('Client heared from server: ', message)
+  socket.on('game move', (move: string) => {
+    if (game.game) {
+      serverMoveDecoder(position, move)
+      console.log('Client heared from server: ', move)
+    }
+  })
+
+  socket.on('class move', (move: string) => {
+    if (!game.game) {
+      serverMoveDecoder(position, move)
+      console.log('Client heared from server: ', move)
+    }
   })
 
   socket.on('game', (white: boolean) => {
@@ -26,6 +35,12 @@ onMounted(() => {
 
   // socket.on('disconnect', () => {
   // })
+})
+
+onUnmounted(() => {
+  socket.off('game move')
+  socket.off('class move')
+  socket.off('game')
 })
 
 watch(game, () => {

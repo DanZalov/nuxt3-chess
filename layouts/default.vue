@@ -5,7 +5,7 @@
       <Meta name="description" content="online chess player" />
       <Meta
         name="keywords"
-        content="chess, nuxt, vue, vuetify, typescript, websocket"
+        content="chess, nuxt, vue, vuetify, typescript, socket.io"
       />
       <Meta name="author" content="Danil Zalialutdinov" />
     </Head>

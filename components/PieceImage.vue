@@ -73,7 +73,9 @@ function finalMoveHandler() {
     clearMove(props.position)
     props.position.whiteMove = !props.position.whiteMove
     props.position.pawnJumped = false
-    socket.emit('move', record)
+    props.game.game
+      ? socket.emit('game move', record)
+      : socket.emit('class move', record)
   }
 
   if (pawnPromotionCheck(props.position, props.row)) {
@@ -127,7 +129,9 @@ function finalMoveHandler() {
         value,
         false
       )
-      socket.emit('move', move)
+      props.game.game
+        ? socket.emit('game move', move)
+        : socket.emit('class move', move)
       props.position.pawnJumped = pawnJumped
       return
     }
@@ -156,7 +160,9 @@ function finalCaptureHandler() {
             value,
             true
           )
-          socket.emit('move', move)
+          props.game.game
+            ? socket.emit('game move', move)
+            : socket.emit('class move', move)
         }
       }
       props.position.pawnJumped = false
@@ -188,7 +194,9 @@ function finalPawnPromotionHandler(event: Event) {
       props.position.pawnJumped = false
       pawnPromotion.value = false
       props.position.pawnPromotion = false
-      socket.emit('move', lastMove[lastMove.length - 1])
+      props.game.game
+        ? socket.emit('game move', lastMove[lastMove.length - 1])
+        : socket.emit('class move', lastMove[lastMove.length - 1])
       console.log(props.position)
     }
   }
@@ -200,10 +208,23 @@ function enPassant() {
   const jumpedPiecePosition = lastMove[lastMove.length - 1]
   for (const value of Object.values(props.position.table)) {
     if (value.includes(props.position.move.piecePosition)) {
-      socket.emit(
-        'move',
-        props.position.move.piecePosition[0] + 'x' + props.column + props.row
-      )
+      props.game.game
+        ? socket.emit(
+            'game move',
+            'move',
+            props.position.move.piecePosition[0] +
+              'x' +
+              props.column +
+              props.row
+          )
+        : socket.emit(
+            'class move',
+            'move',
+            props.position.move.piecePosition[0] +
+              'x' +
+              props.column +
+              props.row
+          )
       changeTable(props.position, props.row, props.column, value, true)
       props.position.pawnJumped = false
     }

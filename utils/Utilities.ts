@@ -49,6 +49,18 @@ export function initialPosition() {
   } as PositionState
 }
 
+export function countableIntersection(arr1: any, arr2: any) {
+  const result: any[] = []
+  for (const elem1 of arr1) {
+    for (const elem2 of arr2) {
+      if (elem1 === elem2) {
+        result.push(elem1)
+      }
+    }
+  }
+  return result
+}
+
 // export function initialPosition() {
 //   return {
 //     table: {

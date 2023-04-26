@@ -61,4 +61,17 @@ declare global {
     game: boolean
     white: boolean
   }
+  interface GameGooms {
+    [key: string]: {
+      moves: string[]
+      white: string
+      black: string
+    }
+  }
+  interface ClassRooms {
+    [key: string]: {
+      moves: string[]
+      class: boolean
+    }
+  }
 }

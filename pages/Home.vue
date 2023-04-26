@@ -10,6 +10,10 @@ onMounted(() => {
   })
 })
 
+onUnmounted(() => {
+  socket.off('ready')
+})
+
 function playHandler() {
   loading.value = true
   socket.emit('ready')
@@ -28,8 +32,13 @@ function playHandler() {
         <v-btn size="x-large" class="w-100 my-7 bg-green" @click="playHandler"
           >Play</v-btn
         >
-        <v-btn size="x-large" class="w-100 bg-green">
-          <NuxtLink to="/board">Use a board</NuxtLink>
+        <v-btn
+          size="x-large"
+          class="w-100 bg-green"
+          @click="socket.emit('class')"
+        >
+          Use a board
+          <!-- <NuxtLink to="/board">Use a board</NuxtLink> -->
         </v-btn>
       </div>
     </v-card>
