@@ -5,7 +5,6 @@ const position = reactive(initialPosition())
 savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
-// const loading = ref(false)
 
 const socket = useSocket()
 onMounted(() => {
@@ -204,6 +203,5 @@ function serverMoveDecoder(position: PositionState, move: string) {
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
     <!-- <DragTemplate /> -->
-    <!-- <Loader :loading="loading" /> -->
   </v-container>
 </template>

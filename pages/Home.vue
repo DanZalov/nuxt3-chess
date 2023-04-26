@@ -16,7 +16,7 @@ onUnmounted(() => {
 
 function playHandler() {
   loading.value = true
-  socket.emit('ready')
+  socket.emit('play')
 }
 </script>
 

@@ -9,15 +9,14 @@ export default defineIOHandler((io) => {
   io.on('connection', (socket) => {
     console.log('Connected ', socket.id)
     classRooms[socket.id] = { moves: [], class: false }
-    // moveHistory.forEach((move) => {
-    //   socket.emit('move', move)
-    // })
 
-    socket.on('ready', () => {
-      console.log(`Server heard from ${socket.id}: ready`)
+    socket.on('play', () => {
+      console.log(`Server heard from ${socket.id}: play`)
       if (countableIntersection(socket.rooms, Object.keys(newGameRooms))[0]) {
+        // next calls
         socket.emit('ready')
       } else {
+        // first call
         waitingUsers.push(socket)
         if (waitingUsers.length === 2) {
           const random = Math.random()
@@ -36,6 +35,7 @@ export default defineIOHandler((io) => {
     socket.on('board', () => {
       console.log(`Server heard from ${socket.id}: board`)
       if (classRooms[socket.id].class) {
+        // class board
         classRooms[socket.id].class = false
         if (classRooms[socket.id].moves[0]) {
           for (const move of classRooms[socket.id].moves) {
@@ -43,51 +43,51 @@ export default defineIOHandler((io) => {
           }
         }
       } else {
-        for (const room of socket.rooms) {
-          if (Object.keys(newGameRooms).includes(room)) {
-            if (newGameRooms[room].moves[0]) {
-              newGameRooms[room].white === socket.id
-                ? socket.emit('game', true)
-                : socket.emit('game', false)
-              for (const move of newGameRooms[room].moves) {
-                socket.emit('game move', move)
-              }
-            } else {
-              const users = io.sockets.adapter.rooms.get(room) as Set<string>
-              const usersArr: string[] = []
-              for (const user of users) {
-                usersArr.push(user)
-              }
-              usersArr.forEach((user, index) => {
-                if (socket.id === user) {
-                  const white = Math.abs(index - +room) > 0.5 ? true : false
-                  socket.emit('game', white)
-                  white
-                    ? (newGameRooms[room].white = user)
-                    : (newGameRooms[room].black = user)
-                }
-              })
-              break
+        // game board
+        const room = countableIntersection(
+          socket.rooms,
+          Object.keys(newGameRooms)
+        )[0] as string
+        if (room) {
+          if (newGameRooms[room].moves[0]) {
+            // next calls
+            newGameRooms[room].white === socket.id
+              ? socket.emit('game', true)
+              : socket.emit('game', false)
+            for (const move of newGameRooms[room].moves) {
+              socket.emit('game move', move)
             }
+          } else {
+            // first call
+            const users = io.sockets.adapter.rooms.get(room) as Set<string>
+            const usersArr: string[] = []
+            for (const user of users) {
+              usersArr.push(user)
+            }
+            usersArr.forEach((user, index) => {
+              if (socket.id === user) {
+                const white = Math.abs(index - +room) > 0.5 ? true : false
+                socket.emit('game', white)
+                white
+                  ? (newGameRooms[room].white = user)
+                  : (newGameRooms[room].black = user)
+              }
+            })
           }
         }
       }
     })
 
-    socket.on('message', (message) => {
-      console.log(`Server heard from ${socket.id}: `, message)
-      socket.emit('message', message)
-    })
-
     socket.on('game move', (move) => {
       console.log(`Server heard from ${socket.id}: `, move)
-      for (const room of socket.rooms) {
-        if (Object.keys(newGameRooms).includes(room)) {
-          socket.broadcast.to(room).emit('game move', move)
-          newGameRooms[room].moves.push(move)
-          console.log(`Game moves: `, newGameRooms[room].moves)
-          break
-        }
+      const room = countableIntersection(
+        socket.rooms,
+        Object.keys(newGameRooms)
+      )[0] as string
+      if (room) {
+        socket.broadcast.to(room).emit('game move', move)
+        newGameRooms[room].moves.push(move)
+        console.log(`Game moves: `, newGameRooms[room].moves)
       }
     })
 
