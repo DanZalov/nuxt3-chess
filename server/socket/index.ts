@@ -1,17 +1,48 @@
 import { Socket } from 'socket.io'
-import { defineIOHandler } from '../../modules/socket'
+import socket, { defineIOHandler } from '../../modules/socket'
 import { countableIntersection } from '../../utils/Utilities'
 
 export default defineIOHandler((io) => {
+  const sessions: string[] = []
   const newGameRooms: GameGooms = {}
   const classRooms: ClassRooms = {}
   const waitingUsers: Socket[] = []
+
+  // io.use((socket, next) => {
+  //   const sessionID = socket.handshake.auth.sessionID
+  //   if (sessionID) {
+  //     // find existing session
+  //     if (sessions.includes(sessionID)) {
+  //       socket.sessionID = sessionID
+  //       return next()
+  //     }
+  //   }
+  //   // create new session
+  //   socket.sessionID = socket.id
+  //   sessions.push(sessionID)
+  //   next()
+  // })
+
   io.on('connection', (socket) => {
-    console.log('Connected ', socket.id)
-    classRooms[socket.id] = { moves: [], class: false }
+    socket.on('session', (sessionID) => {
+      if (sessionID) {
+        // find existing session
+        if (sessions.includes(sessionID)) {
+          socket.sessionID = sessionID
+        }
+      } else {
+        // create new session
+        socket.sessionID = socket.id
+        sessions.push(socket.sessionID)
+        classRooms[socket.sessionID] = { moves: [], class: false }
+      }
+      socket.emit('session', socket.sessionID)
+      console.log(`Connected ${socket.id}\nSession: `, socket.sessionID)
+    })
 
     socket.on('play', () => {
-      console.log(`Server heard from ${socket.id}: play`)
+      console.log(`Server heard from ${socket.sessionID}: play`)
+      classRooms[socket.sessionID].class = false
       if (countableIntersection(socket.rooms, Object.keys(newGameRooms))[0]) {
         // next calls
         socket.emit('ready')
@@ -33,12 +64,11 @@ export default defineIOHandler((io) => {
     })
 
     socket.on('board', () => {
-      console.log(`Server heard from ${socket.id}: board`)
-      if (classRooms[socket.id].class) {
+      console.log(`Server heard from ${socket.sessionID}: board`)
+      if (classRooms[socket.sessionID]?.class) {
         // class board
-        classRooms[socket.id].class = false
-        if (classRooms[socket.id].moves[0]) {
-          for (const move of classRooms[socket.id].moves) {
+        if (classRooms[socket.sessionID].moves[0]) {
+          for (const move of classRooms[socket.sessionID].moves) {
             socket.emit('class move', move)
           }
         }
@@ -51,7 +81,7 @@ export default defineIOHandler((io) => {
         if (room) {
           if (newGameRooms[room].moves[0]) {
             // next calls
-            newGameRooms[room].white === socket.id
+            newGameRooms[room].white === socket.sessionID
               ? socket.emit('game', true)
               : socket.emit('game', false)
             for (const move of newGameRooms[room].moves) {
@@ -69,8 +99,8 @@ export default defineIOHandler((io) => {
                 const white = Math.abs(index - +room) > 0.5 ? true : false
                 socket.emit('game', white)
                 white
-                  ? (newGameRooms[room].white = user)
-                  : (newGameRooms[room].black = user)
+                  ? (newGameRooms[room].white = socket.sessionID)
+                  : (newGameRooms[room].black = socket.sessionID)
               }
             })
           }
@@ -79,7 +109,7 @@ export default defineIOHandler((io) => {
     })
 
     socket.on('game move', (move) => {
-      console.log(`Server heard from ${socket.id}: `, move)
+      console.log(`Server heard from ${socket.sessionID}: `, move)
       const room = countableIntersection(
         socket.rooms,
         Object.keys(newGameRooms)
@@ -92,20 +122,20 @@ export default defineIOHandler((io) => {
     })
 
     socket.on('class', () => {
-      console.log(`Server heard from ${socket.id}: class`)
-      classRooms[socket.id].class = true
+      console.log(`Server heard from ${socket.sessionID}: class`)
+      classRooms[socket.sessionID].class = true
       socket.emit('ready')
     })
 
     socket.on('class move', (move) => {
-      console.log(`Server heard from ${socket.id}: `, move)
+      console.log(`Server heard from ${socket.sessionID}: `, move)
       socket.broadcast.to(socket.id).emit('class move', move)
-      classRooms[socket.id].moves.push(move)
-      console.log(`Class moves: `, classRooms[socket.id].moves)
+      classRooms[socket.sessionID].moves.push(move)
+      console.log(`Class moves: `, classRooms[socket.sessionID].moves)
     })
 
     socket.on('disconnect', () => {
-      console.log(`${socket.id} disconnected`)
+      console.log(`${socket.id} disconnected\nSession: `, socket.sessionID)
       // if (!io.of('/').sockets.size) {
       //   moveHistory = []
       // }
