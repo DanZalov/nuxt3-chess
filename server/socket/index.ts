@@ -3,37 +3,22 @@ import socket, { defineIOHandler } from '../../modules/socket'
 import { countableIntersection } from '../../utils/Utilities'
 
 export default defineIOHandler((io) => {
-  const sessions: string[] = []
-  const newGameRooms: GameGooms = {}
+  const sessions: Sessions = {}
+  const gameRooms: GameGooms = {}
   const classRooms: ClassRooms = {}
   const waitingUsers: Socket[] = []
 
-  // io.use((socket, next) => {
-  //   const sessionID = socket.handshake.auth.sessionID
-  //   if (sessionID) {
-  //     // find existing session
-  //     if (sessions.includes(sessionID)) {
-  //       socket.sessionID = sessionID
-  //       return next()
-  //     }
-  //   }
-  //   // create new session
-  //   socket.sessionID = socket.id
-  //   sessions.push(sessionID)
-  //   next()
-  // })
-
   io.on('connection', (socket) => {
     socket.on('session', (sessionID) => {
-      if (sessionID) {
+      if (sessionID && Object.keys(sessions).includes(sessionID)) {
         // find existing session
-        if (sessions.includes(sessionID)) {
-          socket.sessionID = sessionID
-        }
+        socket.sessionID = sessionID
+        sessions[socket.sessionID].online = true
+        sessions[socket.sessionID].time = Date.now()
       } else {
         // create new session
         socket.sessionID = socket.id
-        sessions.push(socket.sessionID)
+        sessions[socket.sessionID] = { online: true, time: Date.now() }
         classRooms[socket.sessionID] = { moves: [], class: false }
       }
       socket.emit('session', socket.sessionID)
@@ -42,23 +27,29 @@ export default defineIOHandler((io) => {
 
     socket.on('play', () => {
       console.log(`Server heard from ${socket.sessionID}: play`)
-      classRooms[socket.sessionID].class = false
-      if (countableIntersection(socket.rooms, Object.keys(newGameRooms))[0]) {
+      if (countableIntersection(socket.rooms, Object.keys(gameRooms))[0]) {
         // next calls
+        classRooms[socket.sessionID].class = false
         socket.emit('ready')
       } else {
         // first call
         waitingUsers.push(socket)
         if (waitingUsers.length === 2) {
-          const random = Math.random()
-          const roomNumber = random.toString()
-          newGameRooms[roomNumber] = { moves: [], white: '', black: '' }
-          for (const waitingUserSocket of waitingUsers) {
-            io.to(waitingUserSocket.id).emit('ready')
-            waitingUserSocket.join(roomNumber)
+          if (waitingUsers[0] === waitingUsers[1]) {
+            // prevent self-gaming
+            waitingUsers.pop()
+          } else {
+            classRooms[socket.sessionID].class = false
+            const random = Math.random()
+            const roomNumber = random.toString()
+            gameRooms[roomNumber] = { moves: [], white: '', black: '' }
+            for (const waitingUserSocket of waitingUsers) {
+              io.to(waitingUserSocket.id).emit('ready')
+              waitingUserSocket.join(roomNumber)
+            }
+            waitingUsers.pop()
+            waitingUsers.pop()
           }
-          waitingUsers.pop()
-          waitingUsers.pop()
         }
       }
     })
@@ -76,15 +67,15 @@ export default defineIOHandler((io) => {
         // game board
         const room = countableIntersection(
           socket.rooms,
-          Object.keys(newGameRooms)
+          Object.keys(gameRooms)
         )[0] as string
         if (room) {
-          if (newGameRooms[room].moves[0]) {
+          if (gameRooms[room].moves[0]) {
             // next calls
-            newGameRooms[room].white === socket.sessionID
+            gameRooms[room].white === socket.sessionID
               ? socket.emit('game', true)
               : socket.emit('game', false)
-            for (const move of newGameRooms[room].moves) {
+            for (const move of gameRooms[room].moves) {
               socket.emit('game move', move)
             }
           } else {
@@ -99,8 +90,8 @@ export default defineIOHandler((io) => {
                 const white = Math.abs(index - +room) > 0.5 ? true : false
                 socket.emit('game', white)
                 white
-                  ? (newGameRooms[room].white = socket.sessionID)
-                  : (newGameRooms[room].black = socket.sessionID)
+                  ? (gameRooms[room].white = socket.sessionID)
+                  : (gameRooms[room].black = socket.sessionID)
               }
             })
           }
@@ -112,12 +103,12 @@ export default defineIOHandler((io) => {
       console.log(`Server heard from ${socket.sessionID}: `, move)
       const room = countableIntersection(
         socket.rooms,
-        Object.keys(newGameRooms)
+        Object.keys(gameRooms)
       )[0] as string
       if (room) {
         socket.broadcast.to(room).emit('game move', move)
-        newGameRooms[room].moves.push(move)
-        console.log(`Game moves: `, newGameRooms[room].moves)
+        gameRooms[room].moves.push(move)
+        console.log(`Game moves: `, gameRooms[room].moves)
       }
     })
 
@@ -136,9 +127,31 @@ export default defineIOHandler((io) => {
 
     socket.on('disconnect', () => {
       console.log(`${socket.id} disconnected\nSession: `, socket.sessionID)
-      // if (!io.of('/').sockets.size) {
-      //   moveHistory = []
-      // }
+      if (waitingUsers.includes(socket)) {
+        const index = waitingUsers.indexOf(socket)
+        waitingUsers.splice(index, 1)
+      }
+      sessions[socket.sessionID].online = false
+      sessions[socket.sessionID].time = Date.now()
     })
+
+    setInterval(() => {
+      // cleaner
+      const currentTime = Date.now()
+      for (const session of Object.keys(sessions)) {
+        if (currentTime - sessions[session].time > 86400000) {
+          delete sessions[session]
+          delete classRooms[session]
+          for (const room of Object.keys(gameRooms)) {
+            if (
+              gameRooms[room].white === session ||
+              gameRooms[room].black === session
+            ) {
+              delete gameRooms[room]
+            }
+          }
+        }
+      }
+    }, 86400000)
   })
 })

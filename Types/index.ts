@@ -74,6 +74,12 @@ declare global {
       class: boolean
     }
   }
+  interface Sessions {
+    [key: string]: {
+      online: boolean
+      time: number
+    }
+  }
 }
 
 declare module 'socket.io' {
