@@ -61,6 +61,12 @@ export function countableIntersection(arr1: any, arr2: any) {
   return result
 }
 
+export function restartBoard(position: PositionState) {
+  const initial = initialPosition()
+  Object.assign(position, initial)
+  savePositionToHistory(position)
+}
+
 // export function initialPosition() {
 //   return {
 //     table: {

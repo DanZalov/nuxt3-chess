@@ -4,7 +4,7 @@ import { countableIntersection } from '../../utils/Utilities'
 
 export default defineIOHandler((io) => {
   const sessions: Sessions = {}
-  const gameRooms: GameGooms = {}
+  const gameRooms: GameRooms = {}
   const classRooms: ClassRooms = {}
   const waitingUsers: Socket[] = []
 
@@ -56,7 +56,7 @@ export default defineIOHandler((io) => {
 
     socket.on('board', () => {
       console.log(`Server heard from ${socket.sessionID}: board`)
-      if (classRooms[socket.sessionID]?.class) {
+      if (classRooms[socket.sessionID].class) {
         // class board
         if (classRooms[socket.sessionID].moves[0]) {
           for (const move of classRooms[socket.sessionID].moves) {
@@ -123,6 +123,11 @@ export default defineIOHandler((io) => {
       socket.broadcast.to(socket.id).emit('class move', move)
       classRooms[socket.sessionID].moves.push(move)
       console.log(`Class moves: `, classRooms[socket.sessionID].moves)
+    })
+
+    socket.on('restart board', () => {
+      console.log(`Server heard from ${socket.sessionID}: restart board`)
+      classRooms[socket.sessionID].moves = []
     })
 
     socket.on('disconnect', () => {

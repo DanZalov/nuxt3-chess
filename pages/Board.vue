@@ -43,9 +43,7 @@ onUnmounted(() => {
 })
 
 watch(game, () => {
-  const initial = initialPosition()
-  Object.assign(position, initial)
-  savePositionToHistory(position)
+  restartBoard(position)
 })
 
 watch(position.table, () => {
@@ -202,6 +200,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
   <v-container class="d-flex flex-row justify-center">
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
+    <SideNavBar :position="position" :game="game" />
     <!-- <DragTemplate /> -->
   </v-container>
 </template>
