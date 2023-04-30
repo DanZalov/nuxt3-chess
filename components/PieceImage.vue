@@ -211,7 +211,6 @@ function enPassant() {
       props.game.game
         ? socket.emit(
             'game move',
-            'move',
             props.position.move.piecePosition[0] +
               'x' +
               props.column +
@@ -219,7 +218,6 @@ function enPassant() {
           )
         : socket.emit(
             'class move',
-            'move',
             props.position.move.piecePosition[0] +
               'x' +
               props.column +
@@ -269,7 +267,7 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
     ) as HTMLElement
     if (
       element &&
-      (!props.game.game || props.game.white === props.position.whiteMove)
+      (!props.game.game || props.game.white === props.position.whiteMove) //don't touch opponent's pieces!
     ) {
       element.click()
       if (

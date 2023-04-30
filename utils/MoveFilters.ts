@@ -166,7 +166,12 @@ export function checkFilter(
         .forEach((capture) => {
           filteredMoves.target.push(capture)
         })
-      for (const move of position.check[0].line) {
+      const kingsPosition = isWhite
+        ? position.table.wk[0]
+        : position.table.bk[0]
+      const kingsPositionIndex = position.check[0].line.indexOf(kingsPosition)
+      const checkLine = position.check[0].line.slice(0, kingsPositionIndex)
+      for (const move of checkLine) {
         if (tempMoves.possibleMoves.includes(move)) {
           filteredMoves.possibleMoves.push(move)
         }

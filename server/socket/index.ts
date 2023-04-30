@@ -27,9 +27,9 @@ export default defineIOHandler((io) => {
 
     socket.on('play', () => {
       console.log(`Server heard from ${socket.sessionID}: play`)
+      classRooms[socket.sessionID].class = false
       if (countableIntersection(socket.rooms, Object.keys(gameRooms))[0]) {
         // next calls
-        classRooms[socket.sessionID].class = false
         socket.emit('ready')
       } else {
         // first call
@@ -39,7 +39,6 @@ export default defineIOHandler((io) => {
             // prevent self-gaming
             waitingUsers.pop()
           } else {
-            classRooms[socket.sessionID].class = false
             const random = Math.random()
             const roomNumber = random.toString()
             gameRooms[roomNumber] = { moves: [], white: '', black: '' }
@@ -56,8 +55,12 @@ export default defineIOHandler((io) => {
 
     socket.on('board', () => {
       console.log(`Server heard from ${socket.sessionID}: board`)
-      if (classRooms[socket.sessionID].class) {
+      if (classRooms[socket.sessionID].class || waitingUsers.includes(socket)) {
         // class board
+        if (waitingUsers.includes(socket)) {
+          const index = waitingUsers.indexOf(socket)
+          waitingUsers.splice(index, 1)
+        }
         if (classRooms[socket.sessionID].moves[0]) {
           for (const move of classRooms[socket.sessionID].moves) {
             socket.emit('class move', move)
@@ -128,6 +131,24 @@ export default defineIOHandler((io) => {
     socket.on('restart board', () => {
       console.log(`Server heard from ${socket.sessionID}: restart board`)
       classRooms[socket.sessionID].moves = []
+    })
+
+    socket.on('game over', () => {
+      console.log(`Server heard from ${socket.sessionID}: game over`)
+      const room = countableIntersection(
+        socket.rooms,
+        Object.keys(gameRooms)
+      )[0]
+      socket.leave(room)
+    })
+
+    socket.on('game left', () => {
+      console.log(`Server heard from ${socket.sessionID}: game left`)
+      const room = countableIntersection(
+        socket.rooms,
+        Object.keys(gameRooms)
+      )[0]
+      socket.broadcast.to(room).emit('opponent left')
     })
 
     socket.on('disconnect', () => {

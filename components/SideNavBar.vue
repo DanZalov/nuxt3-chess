@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const emit = defineEmits(['gameOver'])
+
 const props = defineProps<{
   position: PositionState
   game: GameOptions
@@ -7,6 +9,9 @@ const socket = useSocket()
 function newGame() {
   socket.emit('restart board')
   restartBoard(props.position)
+}
+function endGame() {
+  emit('gameOver')
 }
 </script>
 
@@ -22,10 +27,17 @@ function newGame() {
             @click="navigateTo('/')"
           ></v-list-item>
           <v-list-item
+            v-if="game.game"
+            prepend-icon="mdi-exit-run"
+            value="gameOver"
+            class="max-opacity"
+            @click="endGame"
+          ></v-list-item>
+          <v-list-item
+            v-else
             prepend-icon="mdi-restart"
             value="reload"
             class="max-opacity"
-            :disabled="game.game"
             active-class="min-overlay-opacity"
             @click="newGame"
           ></v-list-item>

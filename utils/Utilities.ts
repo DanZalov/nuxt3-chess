@@ -63,7 +63,17 @@ export function countableIntersection(arr1: any, arr2: any) {
 
 export function restartBoard(position: PositionState) {
   const initial = initialPosition()
-  Object.assign(position, initial)
+
+  position.check = initial.check
+  position.history = initial.history
+  position.move = initial.move
+  position.pawnJumped = initial.pawnJumped
+  position.pawnPromotion = initial.pawnPromotion
+  position.pinned = initial.pinned
+  Object.assign(position.table, initial.table)
+  position.tableHistory = initial.tableHistory
+  position.whiteMove = initial.whiteMove
+  // did it manually because watching position.table (not to be rewrited) and object values have mixed types
   savePositionToHistory(position)
 }
 

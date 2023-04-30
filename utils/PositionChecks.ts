@@ -158,7 +158,7 @@ export function checkCheck(position: PositionState) {
             const kingIndex = move.indexOf(kPosition)
             checkInfo.push({
               checkerPosition: piecePosition,
-              line: move.slice(0, kingIndex + 2),
+              line: move.slice(0, kingIndex + 2), // added cell after king to prevent that to be possible move for the king
             } as CheckInfo)
           }
         }
@@ -259,11 +259,13 @@ export function mateChecks(position: PositionState) {
     } else {
       if (lastMove) {
         lastMove[lastMove.length - 1] += '#'
+        return 'mate'
       }
     }
   } else {
     if (!foundMoves) {
       lastMove[lastMove.length - 1] += ' stalemate'
+      return 'stalemate'
     }
   }
 }
@@ -300,6 +302,7 @@ export function drawChecks(position: PositionState) {
   if (moveRepeatCheck(position) || positionRepeatCheck(position)) {
     const lastMove = position.history[position.history.length - 1]
     lastMove[lastMove.length - 1] += ' draw'
+    return true
   }
 }
 

@@ -2,6 +2,8 @@
 import { Piece } from '../utils/ShowPossibleMoves'
 const game = reactive({ game: false, white: true } as GameOptions)
 const position = reactive(initialPosition())
+const gameOver = ref(false)
+let gameOverResut = ''
 savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
@@ -32,6 +34,12 @@ onMounted(() => {
     console.log('Client heared from server: ', white)
   })
 
+  socket.on('opponent left', () => {
+    console.log('Client heared from server: opponent left')
+    gameOver.value = true
+    gameOverResut = game.white ? '1 - 0' : '0 - 1'
+  })
+
   // socket.on('disconnect', () => {
   // })
 })
@@ -39,6 +47,7 @@ onMounted(() => {
 onUnmounted(() => {
   socket.off('game move')
   socket.off('class move')
+  socket.off('opponent left')
   socket.off('game')
 })
 
@@ -50,10 +59,33 @@ watch(position.table, () => {
   savePositionToHistory(position)
   position.pinned = searchForPinned(position)
   position.check = checkCheck(position)
-  mateChecks(position)
-  drawChecks(position)
+  const mate = mateChecks(position)
+  const draw = drawChecks(position)
+  // console.log('mate: ', mate)
+  // console.log('draw: ', draw)
+
+  if (game.game) {
+    if (draw) {
+      gameOver.value = true
+      gameOverResut = '1/2 - 1/2'
+    }
+    if (mate === 'stalemate') {
+      gameOver.value = true
+      gameOverResut = '1/2 - 1/2'
+    } else if (mate === 'mate') {
+      gameOver.value = true
+      position.whiteMove ? (gameOverResut = '0 - 1') : (gameOverResut = '1 - 0')
+    }
+  }
+
   // console.log('watch')
 })
+
+function endGame() {
+  gameOver.value = true
+  gameOverResut = game.white ? '0 - 1' : '1 - 0'
+  socket.emit('game left')
+}
 
 function serverMoveDecoder(position: PositionState, move: string) {
   position.pawnJumped = false
@@ -193,6 +225,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
     }
   }
   position.whiteMove = !position.whiteMove
+  // console.log(position.table)
 }
 </script>
 
@@ -200,7 +233,8 @@ function serverMoveDecoder(position: PositionState, move: string) {
   <v-container class="d-flex flex-row justify-center">
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
-    <SideNavBar :position="position" :game="game" />
+    <SideNavBar :position="position" :game="game" @gameOver="endGame" />
+    <GameoverModal :gameOver="gameOver" :result="gameOverResut" />
     <!-- <DragTemplate /> -->
   </v-container>
 </template>
