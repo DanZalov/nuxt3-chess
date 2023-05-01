@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const emit = defineEmits(['gameOver'])
+const emit = defineEmits(['playerLeft'])
 
 const props = defineProps<{
   position: PositionState
@@ -9,9 +9,6 @@ const socket = useSocket()
 function newGame() {
   socket.emit('restart board')
   restartBoard(props.position)
-}
-function endGame() {
-  emit('gameOver')
 }
 </script>
 
@@ -31,7 +28,7 @@ function endGame() {
             prepend-icon="mdi-exit-run"
             value="gameOver"
             class="max-opacity"
-            @click="endGame"
+            @click="emit('playerLeft')"
           ></v-list-item>
           <v-list-item
             v-else

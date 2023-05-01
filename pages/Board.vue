@@ -7,6 +7,7 @@ let gameOverResut = ''
 savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
+// console.log(position)
 
 const socket = useSocket()
 onMounted(() => {
@@ -61,19 +62,17 @@ watch(position.table, () => {
   position.check = checkCheck(position)
   const mate = mateChecks(position)
   const draw = drawChecks(position)
-  // console.log('mate: ', mate)
-  // console.log('draw: ', draw)
 
   if (game.game) {
     if (draw) {
-      gameOver.value = true
+      gameOverHandler()
       gameOverResut = '1/2 - 1/2'
     }
     if (mate === 'stalemate') {
-      gameOver.value = true
+      gameOverHandler()
       gameOverResut = '1/2 - 1/2'
     } else if (mate === 'mate') {
-      gameOver.value = true
+      gameOverHandler()
       position.whiteMove ? (gameOverResut = '0 - 1') : (gameOverResut = '1 - 0')
     }
   }
@@ -81,10 +80,17 @@ watch(position.table, () => {
   // console.log('watch')
 })
 
-function endGame() {
+function gameOverHandler() {
+  socket.emit('game over')
+  setTimeout(() => {
+    gameOver.value = true
+  }, 1000)
+}
+
+function playerLeft() {
   gameOver.value = true
   gameOverResut = game.white ? '0 - 1' : '1 - 0'
-  socket.emit('game left')
+  socket.emit('player left')
 }
 
 function serverMoveDecoder(position: PositionState, move: string) {
@@ -233,7 +239,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
   <v-container class="d-flex flex-row justify-center">
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
-    <SideNavBar :position="position" :game="game" @gameOver="endGame" />
+    <SideNavBar :position="position" :game="game" @playerLeft="playerLeft" />
     <GameoverModal :gameOver="gameOver" :result="gameOverResut" />
     <!-- <DragTemplate /> -->
   </v-container>

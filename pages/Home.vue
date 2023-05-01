@@ -43,7 +43,7 @@ function playHandler() {
         </v-btn>
       </div>
     </v-card>
-    <Loader :loading="loading" />
+    <Loader :loading="loading" @close="loading = false" />
   </v-container>
 </template>
 

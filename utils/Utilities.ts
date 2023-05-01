@@ -18,6 +18,7 @@ export function convertLetterToPiece(letter: string) {
 }
 
 export function initialPosition() {
+  // made it a function to prevent mutations
   return {
     table: {
       bk: ['e8'],
@@ -65,7 +66,7 @@ export function restartBoard(position: PositionState) {
   const initial = initialPosition()
 
   position.check = initial.check
-  position.history = initial.history
+  Object.assign(position.history, initial.history)
   position.move = initial.move
   position.pawnJumped = initial.pawnJumped
   position.pawnPromotion = initial.pawnPromotion
@@ -74,7 +75,6 @@ export function restartBoard(position: PositionState) {
   position.tableHistory = initial.tableHistory
   position.whiteMove = initial.whiteMove
   // did it manually because watching position.table (not to be rewrited) and object values have mixed types
-  savePositionToHistory(position)
 }
 
 // export function initialPosition() {

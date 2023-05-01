@@ -2,13 +2,19 @@
 const props = defineProps<{
   loading: boolean
 }>()
-// const dialog = ref(props.loading)
 const waiting = ref(true)
+const emit = defineEmits(['close'])
 onMounted(() => {
   setTimeout(() => {
     waiting.value = false
   }, 10000)
 })
+function close() {
+  emit('close')
+  setTimeout(() => {
+    waiting.value = true
+  }, 200)
+}
 </script>
 
 <template>
@@ -31,6 +37,7 @@ onMounted(() => {
           <v-btn class="bg-green" @click="navigateTo('/board')">
             Back to board
           </v-btn>
+          <v-btn class="bg-green" @click="close"> Close </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

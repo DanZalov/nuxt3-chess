@@ -23,6 +23,14 @@ export default defineIOHandler((io) => {
       }
       socket.emit('session', socket.sessionID)
       console.log(`Connected ${socket.id}\nSession: `, socket.sessionID)
+      for (const [key, value] of Object.entries(gameRooms)) {
+        if (
+          socket.sessionID === value.white ||
+          socket.sessionID === value.black
+        ) {
+          socket.join(key)
+        }
+      }
     })
 
     socket.on('play', () => {
@@ -55,7 +63,10 @@ export default defineIOHandler((io) => {
 
     socket.on('board', () => {
       console.log(`Server heard from ${socket.sessionID}: board`)
-      if (classRooms[socket.sessionID].class || waitingUsers.includes(socket)) {
+      if (
+        classRooms[socket.sessionID]?.class ||
+        waitingUsers.includes(socket)
+      ) {
         // class board
         if (waitingUsers.includes(socket)) {
           const index = waitingUsers.indexOf(socket)
@@ -140,15 +151,20 @@ export default defineIOHandler((io) => {
         Object.keys(gameRooms)
       )[0]
       socket.leave(room)
+      gameRooms[room].white === socket.sessionID
+        ? (gameRooms[room].white = '')
+        : (gameRooms[room].black = '')
     })
 
-    socket.on('game left', () => {
-      console.log(`Server heard from ${socket.sessionID}: game left`)
+    socket.on('player left', () => {
+      console.log(`Server heard from ${socket.sessionID}: player left`)
       const room = countableIntersection(
         socket.rooms,
         Object.keys(gameRooms)
       )[0]
       socket.broadcast.to(room).emit('opponent left')
+      io.in(room).disconnectSockets(true)
+      delete gameRooms[room]
     })
 
     socket.on('disconnect', () => {

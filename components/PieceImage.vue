@@ -235,6 +235,16 @@ function enPassant() {
 
 function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
   showMoves(isWhite, piece)
+  if (props.game.game && props.game.white !== props.position.whiteMove) {
+    const shortOnMouseUp = () => {
+      document.removeEventListener('mouseup', shortOnMouseUp)
+      setTimeout(() => {
+        clearMove(props.position)
+      })
+    }
+    document.addEventListener('mouseup', shortOnMouseUp)
+    return //don't touch opponent's pieces!
+  }
   const pieceImg = event.target as HTMLElement
   const parent = pieceImg.parentElement as HTMLElement
   pieceImg.style.position = 'absolute'
@@ -265,10 +275,7 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
       event.pageX,
       event.pageY
     ) as HTMLElement
-    if (
-      element &&
-      (!props.game.game || props.game.white === props.position.whiteMove) //don't touch opponent's pieces!
-    ) {
+    if (element) {
       element.click()
       if (
         !props.position.pawnPromotion &&

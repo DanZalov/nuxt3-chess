@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { emit } from 'process'
-
 const props = defineProps<{
   gameOver: boolean
   result: string
 }>()
-const socket = useSocket()
-function endGame() {
-  navigateTo('/')
-  socket.emit('game over')
-}
+// const socket = useSocket()
+// socket.emit('game over')
+// function endGame() {
+//   navigateTo('/')
+// }
 </script>
 
 <template>
@@ -19,8 +17,8 @@ function endGame() {
         {{ result }}
       </v-card-title>
       <v-card-actions class="d-flex justify-center">
-        <v-btn class="bg-green" variant="outlined" @click="endGame">
-          End game
+        <v-btn class="bg-green" variant="outlined" @click="navigateTo('/')">
+          Close
         </v-btn>
       </v-card-actions>
     </v-card>

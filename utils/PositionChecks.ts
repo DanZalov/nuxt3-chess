@@ -276,6 +276,7 @@ function moveRepeatCheck(position: PositionState) {
   for (const stringMove of stringHistory) {
     entries[stringMove] = entries[stringMove] ? entries[stringMove] + 1 : 1
     if (entries[stringMove] === 3) {
+      console.log(position)
       return true
     }
   }
@@ -291,6 +292,7 @@ function positionRepeatCheck(position: PositionState) {
         ? entries[stringedPosition[i]] + 1
         : 1
       if (entries[stringedPosition[i]] === 3) {
+        console.log(position)
         return true
       }
     }
