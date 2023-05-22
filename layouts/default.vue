@@ -17,15 +17,6 @@ onMounted(() => {
       localStorage.setItem('sessionID', sessionID)
     }
   })
-  socket.on('disconnect', (reason) => {
-    if (reason === 'io server disconnect') {
-      // the disconnection was initiated by the server, you need to reconnect manually
-      console.log('disconnected by server')
-    }
-    // else the socket will automatically try to reconnect
-    console.log('disconnected for unknown reason')
-    socket.connect()
-  })
 })
 
 onUnmounted(() => {
