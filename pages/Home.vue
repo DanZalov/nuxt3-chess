@@ -5,13 +5,12 @@ const loading = ref(false)
 onMounted(() => {
   socket.on('ready', () => {
     loading.value = false
-    console.log('Client heared from server: ready\nLoading: ', loading.value)
+    console.log('Client heard from server: ready\nLoading: ', loading.value)
     navigateTo('/board')
   })
 })
 
 onUnmounted(() => {
-  // socket.off('session')
   socket.off('ready')
 })
 
@@ -39,7 +38,6 @@ function playHandler() {
           @click="socket.emit('class')"
         >
           Use a board
-          <!-- <NuxtLink to="/board">Use a board</NuxtLink> -->
         </v-btn>
       </div>
     </v-card>

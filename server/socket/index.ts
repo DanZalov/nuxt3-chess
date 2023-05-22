@@ -182,6 +182,7 @@ export default defineIOHandler((io) => {
       const currentTime = Date.now()
       for (const session of Object.keys(sessions)) {
         if (currentTime - sessions[session].time > 86400000) {
+          console.log('Session cleaned:', session)
           delete sessions[session]
           delete classRooms[session]
           for (const room of Object.keys(gameRooms)) {

@@ -18,25 +18,25 @@ onMounted(() => {
   socket.on('game move', (move: string) => {
     if (game.game) {
       serverMoveDecoder(position, move)
-      console.log('Client heared from server: ', move)
+      console.log('Client heard from server: ', move)
     }
   })
 
   socket.on('class move', (move: string) => {
     if (!game.game) {
       serverMoveDecoder(position, move)
-      console.log('Client heared from server: ', move)
+      console.log('Client heard from server: ', move)
     }
   })
 
   socket.on('game', (white: boolean) => {
     game.game = true
     game.white = white
-    console.log('Client heared from server: ', white)
+    console.log('Client heard from server: ', white)
   })
 
   socket.on('opponent left', () => {
-    console.log('Client heared from server: opponent left')
+    console.log('Client heard from server: opponent left')
     gameOver.value = true
     gameOverResut = game.white ? '1 - 0' : '0 - 1'
   })

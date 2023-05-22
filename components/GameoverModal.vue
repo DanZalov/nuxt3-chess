@@ -3,11 +3,6 @@ const props = defineProps<{
   gameOver: boolean
   result: string
 }>()
-// const socket = useSocket()
-// socket.emit('game over')
-// function endGame() {
-//   navigateTo('/')
-// }
 </script>
 
 <template>
@@ -22,8 +17,6 @@ const props = defineProps<{
         </v-btn>
       </v-card-actions>
     </v-card>
-    <!-- <v-sheet class="border" scroll-strategy="none">
-      </v-sheet> -->
   </v-dialog>
 </template>
 
