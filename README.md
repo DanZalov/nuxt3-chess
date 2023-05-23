@@ -1,42 +1,25 @@
-# Nuxt 3 Minimal Starter
+# nuxt3-chess
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+## Short Description
 
-## Setup
+Online chess multiplayer build on Nuxt 3 with socket.io backend
 
-Make sure to install the dependencies:
+## How to play
 
-```bash
-# yarn
-yarn install
+Click **Play** to play with another player who pressed the button. Play with your friends!
 
-# npm
-npm install
+Click **Use a board** to move pieces by yourself. Analyse your game and have fun!
 
-# pnpm
-pnpm install
-```
+You can reload a page and come back to your games by choosing **Play** or **Use a board**.
 
-## Development Server
+## Limitations
 
-Start the development server on `http://localhost:3000`
+Free tier on [render.com](https://render.com/) allows a socket connection only for about 15 minutes and builds the app sometimes slowly, be patient!
 
-```bash
-npm run dev
-```
+## Development info
 
-## Production
-
-Build the application for production:
-
-```bash
-npm run build
-```
-
-Locally preview production build:
-
-```bash
-npm run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- nuxt 3
+- typescript
+- [socket.io](https://socket.io/)
+- [vuetify](https://vuetifyjs.com/en/)
+- hosting on [render](https://render.com/)
