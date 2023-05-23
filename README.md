@@ -2,7 +2,7 @@
 
 ## Short Description
 
-Online chess multiplayer build on Nuxt 3 with socket.io backend
+Online chess multiplayer build on Nuxt 3 with socket.io backend (only for PC by now)
 
 ## How to play
 
