@@ -8,6 +8,15 @@ const rowsArray = ['8', '7', '6', '5', '4', '3', '2', '1']
 const columnsArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 const reversedRowsArray = [...rowsArray].reverse()
 const reversedColumnsArray = [...columnsArray].reverse()
+const chosenRowsArray = ref(rowsArray)
+const chosenColumnsArray = ref(columnsArray)
+
+watch(props.game, () => {
+  chosenRowsArray.value = props.game.white ? rowsArray : reversedRowsArray
+  chosenColumnsArray.value = props.game.white
+    ? columnsArray
+    : reversedColumnsArray
+})
 
 function backgroundColorHandler(
   row: string,
@@ -27,10 +36,10 @@ function backgroundColorHandler(
 
 <template>
   <div class="chess-table unselectable">
-    <v-row v-if="game.white" v-for="row of rowsArray" no-gutters>
-      <v-col v-for="column of columnsArray">
+    <v-row v-for="row of chosenRowsArray" no-gutters>
+      <v-col v-for="column of chosenColumnsArray">
         <v-sheet
-          class="pa-1 border"
+          class="pa-1 border position-relative"
           height="67.25px"
           width="67.25px"
           :class="
@@ -44,26 +53,18 @@ function backgroundColorHandler(
             :column="column"
             :game="game"
           />
-        </v-sheet>
-      </v-col>
-    </v-row>
-    <v-row v-else v-for="row of reversedRowsArray" no-gutters>
-      <v-col v-for="column of reversedColumnsArray">
-        <v-sheet
-          class="pa-1 border"
-          height="67.25px"
-          width="67.25px"
-          :class="
-            backgroundColorHandler(row, column, position.move.possibleCaptures)
-          "
-          @click="clearMove(position)"
-        >
-          <PieceImage
-            :position="position"
-            :row="row"
-            :column="column"
-            :game="game"
-          />
+          <div
+            v-if="row === chosenRowsArray[7]"
+            class="x-coordinate text-caption"
+          >
+            {{ column }}
+          </div>
+          <div
+            v-if="column === chosenColumnsArray[0]"
+            class="y-coordinate text-caption"
+          >
+            {{ row }}
+          </div>
         </v-sheet>
       </v-col>
     </v-row>
@@ -88,5 +89,18 @@ function backgroundColorHandler(
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   not supported by any browser */
+}
+.position-relative {
+  position: relative;
+}
+.x-coordinate {
+  position: absolute;
+  right: 3px;
+  bottom: -1px;
+}
+.y-coordinate {
+  position: absolute;
+  left: 5px;
+  top: 0px;
 }
 </style>

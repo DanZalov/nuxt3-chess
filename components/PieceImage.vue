@@ -395,7 +395,7 @@ function onMouseDown(event: MouseEvent, isWhite: boolean, piece: Piece) {
       v-else-if="position.move.possibleMoves.includes(column + row)"
       class="w-100 pa-2 pointer"
       src="/greyCircleLine-300micro.png"
-      alt="circle"
+      alt="possible move"
       @click.stop="finalMoveHandler()"
     />
     <div
