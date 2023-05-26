@@ -240,7 +240,11 @@ function serverMoveDecoder(position: PositionState, move: string) {
     <ChessTable :position="position" :game="game" />
     <MovesHistory :position="position" />
     <SideNavBar :position="position" :game="game" @playerLeft="playerLeft" />
-    <GameoverModal :gameOver="gameOver" :result="gameOverResut" />
+    <GameoverModal
+      :gameOver="gameOver"
+      :result="gameOverResut"
+      :moves="position.history"
+    />
     <!-- <DragTemplate /> -->
   </v-container>
 </template>
