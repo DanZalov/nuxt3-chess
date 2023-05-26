@@ -163,7 +163,7 @@ export default defineIOHandler((io) => {
         Object.keys(gameRooms)
       )[0]
       socket.broadcast.to(room).emit('opponent left')
-      io.in(room).disconnectSockets(true)
+      // io.in(room).disconnectSockets(true)
       delete gameRooms[room]
     })
 
