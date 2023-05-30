@@ -119,6 +119,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
         position.table.br[index] = 'f8'
       }
     }
+    move_sound.play()
   } else {
     let pieceDestination: string
     let pawnPromotionCode = ''
@@ -217,6 +218,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
         position.table.bp.splice(index, 1)
       }
     }
+    isCapture ? capture_sound.play() : move_sound.play()
   }
 
   const history = position.history

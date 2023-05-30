@@ -74,7 +74,7 @@ export function restartBoard(position: PositionState) {
   Object.assign(position.table, initial.table)
   position.tableHistory = initial.tableHistory
   position.whiteMove = initial.whiteMove
-  // did it manually because watching position.table (not to be rewrited) and object values have mixed types
+  // did it manually because watching position.table and position.history (not to be rewrited) and object values have mixed types
 }
 
 // export function initialPosition() {

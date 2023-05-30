@@ -103,6 +103,7 @@ export function writeHistory(
       history.push(['', move])
     }
   }
+  isCapture ? capture_sound.play() : move_sound.play()
   return move
 }
 
