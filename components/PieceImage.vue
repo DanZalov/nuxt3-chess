@@ -10,6 +10,7 @@ const socket = useSocket()
 const pieceCode = computed(() => getPieceCode())
 const pawnPromotion = ref(false)
 const showOnClick = ref(true)
+const { sounds } = useSounds()
 
 function getPieceCode() {
   for (const [key, value] of Object.entries(props.position.table)) {
@@ -76,6 +77,7 @@ function finalMoveHandler() {
     props.game.game
       ? socket.emit('game move', record)
       : socket.emit('class move', record)
+    sounds.move.play()
   }
 
   if (pawnPromotionCheck(props.position, props.row)) {
@@ -133,6 +135,7 @@ function finalMoveHandler() {
         ? socket.emit('game move', move)
         : socket.emit('class move', move)
       props.position.pawnJumped = pawnJumped
+      sounds.move.play()
       return
     }
   }
@@ -166,6 +169,7 @@ function finalCaptureHandler() {
         }
       }
       props.position.pawnJumped = false
+      sounds.capture.play()
       return true
     }
   }
@@ -197,7 +201,7 @@ function finalPawnPromotionHandler(event: Event) {
       props.game.game
         ? socket.emit('game move', lastMove[lastMove.length - 1])
         : socket.emit('class move', lastMove[lastMove.length - 1])
-      console.log(props.position)
+      isCapture ? sounds.capture.play() : sounds.move.play()
     }
   }
 }
@@ -225,6 +229,7 @@ function enPassant() {
           )
       changeTable(props.position, props.row, props.column, value, true)
       props.position.pawnJumped = false
+      sounds.capture.play()
     }
     if (value.includes(jumpedPiecePosition)) {
       const index = value.indexOf(jumpedPiecePosition)

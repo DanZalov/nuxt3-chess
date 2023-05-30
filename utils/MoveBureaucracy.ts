@@ -38,6 +38,40 @@ export function savePositionToHistory(position: PositionState) {
       history.push(['', cleanedString])
     }
   }
+  position.current = cleanedString
+}
+
+export function restoreTableFromHistory(
+  historyString: string,
+  position: PositionState
+) {
+  const piecesPositions = historyString.split(']')
+  position.table.bk[0] = piecesPositions[0]
+  position.table.wk[0] = piecesPositions[1]
+  for (let i = 2; i < 12; i++) {
+    if (piecesPositions[i].length > 2) {
+      let tempPosition = ''
+      for (let j = 0; j < piecesPositions[i].length; j++) {
+        if (j > 1 && j % 2 === 0) {
+          tempPosition += ` ${piecesPositions[i][j]}`
+        } else {
+          tempPosition += piecesPositions[i][j]
+        }
+      }
+      piecesPositions[i] = tempPosition
+    }
+  }
+  position.table.bq = piecesPositions[2].split(' ')
+  position.table.wq = piecesPositions[3].split(' ')
+  position.table.br = piecesPositions[4].split(' ')
+  position.table.wr = piecesPositions[5].split(' ')
+  position.table.bb = piecesPositions[6].split(' ')
+  position.table.wb = piecesPositions[7].split(' ')
+  position.table.bn = piecesPositions[8].split(' ')
+  position.table.wn = piecesPositions[9].split(' ')
+  position.table.bp = piecesPositions[10].split(' ')
+  position.table.wp = piecesPositions[11].split(' ')
+  console.log(position.table)
 }
 
 export function changeTable(
@@ -103,7 +137,6 @@ export function writeHistory(
       history.push(['', move])
     }
   }
-  isCapture ? capture_sound.play() : move_sound.play()
   return move
 }
 
@@ -137,4 +170,40 @@ export function fillMove(
       position.move.pieceCode = position.whiteMove ? 'wp' : 'bp'
       break
   }
+}
+
+export function goToPrevPosition(position: PositionState) {
+  const history = position.tableHistory
+  let prevPosition = ''
+  for (let i = 0; i < history.length; i++) {
+    if (history[i][0] === position.current && i > 0) {
+      prevPosition = history[i - 1][1]
+    } else if (history[i][1] === position.current) {
+      prevPosition = history[i][0]
+    }
+  }
+  if (prevPosition) {
+    restoreTableFromHistory(prevPosition, position)
+    position.current = prevPosition
+    console.log('previous position: ', position.current)
+  }
+  position.whiteMove = !position.whiteMove
+}
+
+export function goToNextPosition(position: PositionState) {
+  const history = position.tableHistory
+  let nextPosition = ''
+  for (let i = 0; i < history.length; i++) {
+    if (history[i][0] === position.current && history[i][1]) {
+      nextPosition = history[i][1]
+    } else if (history[i][1] === position.current && history[i + 1][0]) {
+      nextPosition = history[i + 1][0]
+    }
+  }
+  if (nextPosition) {
+    restoreTableFromHistory(nextPosition, position)
+    position.current = nextPosition
+    console.log('next position: ', position.current)
+  }
+  position.whiteMove = !position.whiteMove
 }

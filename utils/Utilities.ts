@@ -47,6 +47,7 @@ export function initialPosition() {
     pawnJumped: false,
     tableHistory: [],
     pawnPromotion: false,
+    current: '',
   } as PositionState
 }
 
@@ -66,7 +67,8 @@ export function restartBoard(position: PositionState) {
   const initial = initialPosition()
 
   position.check = initial.check
-  Object.assign(position.history, initial.history)
+  // Object.assign(position.history, initial.history) somehow doesn't work
+  position.history.length = 0
   position.move = initial.move
   position.pawnJumped = initial.pawnJumped
   position.pawnPromotion = initial.pawnPromotion
@@ -74,6 +76,9 @@ export function restartBoard(position: PositionState) {
   Object.assign(position.table, initial.table)
   position.tableHistory = initial.tableHistory
   position.whiteMove = initial.whiteMove
+  console.log('initial: ', initial)
+  console.log('position: ', position)
+
   // did it manually because watching position.table and position.history (not to be rewrited) and object values have mixed types
 }
 

@@ -31,6 +31,7 @@ declare global {
     pawnJumped: boolean
     tableHistory: string[][]
     pawnPromotion: boolean
+    current: string
   }
   interface ShowPossibleMovesOptions {
     position: PositionState
@@ -79,6 +80,10 @@ declare global {
       online: boolean
       time: number
     }
+  }
+  interface SoundsLib {
+    move: HTMLAudioElement
+    capture: HTMLAudioElement
   }
 }
 

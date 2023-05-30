@@ -8,7 +8,7 @@ savePositionToHistory(position)
 position.pinned = searchForPinned(position)
 position.check = checkCheck(position)
 // console.log(position)
-
+const { sounds } = useSounds()
 const socket = useSocket()
 onMounted(() => {
   socket.emit('board')
@@ -41,6 +41,11 @@ onMounted(() => {
     gameOverResut = game.white ? '1 - 0' : '0 - 1'
   })
 
+  // if (!game.game) {
+  //   window.addEventListener('keyup', keyUpLeftHandler)
+  //   window.addEventListener('keyup', keyUpRightHandler)
+  // }
+
   // socket.on('disconnect', () => {
   // })
 })
@@ -50,6 +55,10 @@ onUnmounted(() => {
   socket.off('class move')
   socket.off('opponent left')
   socket.off('game')
+  // if (!game.game) {
+  //   window.removeEventListener('keyup', keyUpLeftHandler)
+  //   window.removeEventListener('keyup', keyUpRightHandler)
+  // }
 })
 
 watch(game, () => {
@@ -79,6 +88,18 @@ watch(position.table, () => {
 
   // console.log('watch')
 })
+
+function keyUpLeftHandler(e: KeyboardEvent) {
+  if (e.key === 'ArrowLeft') {
+    goToPrevPosition(position)
+  }
+}
+
+function keyUpRightHandler(e: KeyboardEvent) {
+  if (e.key === 'ArrowRight') {
+    goToNextPosition(position)
+  }
+}
 
 function gameOverHandler() {
   socket.emit('game over')
@@ -119,7 +140,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
         position.table.br[index] = 'f8'
       }
     }
-    move_sound.play()
+    sounds.move.play()
   } else {
     let pieceDestination: string
     let pawnPromotionCode = ''
@@ -218,7 +239,7 @@ function serverMoveDecoder(position: PositionState, move: string) {
         position.table.bp.splice(index, 1)
       }
     }
-    isCapture ? capture_sound.play() : move_sound.play()
+    isCapture ? sounds.capture.play() : sounds.move.play()
   }
 
   const history = position.history
